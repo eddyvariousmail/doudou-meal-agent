@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#0d0d14"/>
+<title>Doudou Meal Agent</title>
+<style>
+:root{--bg:#0d0d14;--surface:#13131f;--surface2:#1a1a28;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.05);--orange:#f97316;--cyan:#22d3ee;--purple:#8b5cf6;--green:#4ade80;--yellow:#facc15;--red:#dc2626;--text:#f8fafc;--muted:#64748b;--dim:#334155}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,'SF Pro Text',system-ui,sans-serif}
+#app{display:flex;flex-direction:column;height:100vh;height:-webkit-fill-available}
+#key-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:32px 24px;gap:18px;text-align:center}
+.key-logo{font-size:56px}.key-title{font-size:22px;font-weight:800}.key-sub{font-size:13px;color:var(--muted);line-height:1.65;max-width:300px}
+.key-input{width:100%;padding:14px 16px;border-radius:14px;font-size:13px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);outline:none;font-family:monospace}
+.key-input:focus{border-color:var(--orange)}
+.key-btn{width:100%;padding:15px;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--orange),var(--red));color:#fff;font-size:15px;font-weight:700}
+.key-note{font-size:11px;color:var(--dim);line-height:1.6}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 14px;flex-shrink:0;display:flex;align-items:center;gap:10px;padding-top:max(10px,env(safe-area-inset-top))}
+.logo-box{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--orange),var(--red));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.app-name{font-size:14px;font-weight:800}.app-sub{font-size:10px;color:var(--muted)}
+#content{flex:1;overflow:hidden;position:relative}
+.tab-pane{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none}
+.tab-pane.active{display:block}
+.tab-flex{position:absolute;inset:0;display:none;flex-direction:column}
+.tab-flex.active{display:flex}
+#bottom-nav{background:var(--surface);border-top:1px solid var(--border);display:flex;flex-shrink:0;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+.nav-btn{flex:1;padding:10px 4px 6px;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav-icon{font-size:20px}.nav-label{font-size:9px;font-weight:700;color:var(--muted)}
+.nav-btn.active .nav-label{color:var(--orange)}
+.nav-dot{width:18px;height:2px;border-radius:1px;background:var(--orange);opacity:0}
+.nav-btn.active .nav-dot{opacity:1}
+.fl{display:flex}.fla{display:flex;align-items:center}
+.fl-col{display:flex;flex-direction:column}
+.fw{flex-wrap:wrap}
+.g6{gap:6px}.g8{gap:8px}.g10{gap:10px}
+.field-label{font-size:11px;color:#94a3b8;margin-bottom:4px;display:block}
+.field-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-size:13px;outline:none;font-family:inherit}
+.field-select{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-size:13px;cursor:pointer;outline:none;-webkit-appearance:none}
+.pill{display:flex;flex-direction:column;align-items:center;padding:4px 9px;border-radius:8px;min-width:52px}
+.pill .pl{font-size:9px;color:var(--muted);margin-bottom:1px}.pill .pv{font-size:12px;font-weight:800}
+.tg{display:flex;background:rgba(255,255,255,0.05);border-radius:9px;padding:3px;border:1px solid var(--border)}
+.tg-btn{flex:1;padding:5px 8px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:700;background:transparent;color:var(--dim);transition:all .15s;white-space:nowrap;font-family:inherit}
+.tg-btn.on-o{background:var(--orange);color:#000}.tg-btn.on-c{background:var(--cyan);color:#000}.tg-btn.on-p{background:var(--purple);color:#fff}
+.card{background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid var(--border);padding:12px;margin-bottom:10px}
+.section-title{font-size:18px;font-weight:800;margin-bottom:2px}.section-sub{font-size:11px;color:var(--muted)}
+.msg-row{display:flex;gap:7px;align-items:flex-start}.msg-row.user{flex-direction:row-reverse}
+.avatar{width:26px;height:26px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700}
+.bubble{max-width:84%;padding:9px 12px;font-size:12px;line-height:1.55}
+.bubble.user{border-radius:11px 3px 11px 11px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);color:#e2e8f0;white-space:pre-wrap}
+.bubble.bot{border-radius:3px 11px 11px 11px;background:rgba(255,255,255,0.04);border:1px solid var(--border)}
+.md-h2{font-size:14px;font-weight:800;color:var(--text);margin:12px 0 4px;border-bottom:1px solid var(--border);padding-bottom:3px}
+.md-h3{font-size:10px;font-weight:700;color:var(--orange);margin:9px 0 3px;text-transform:uppercase;letter-spacing:.06em}
+.md-li{font-size:12px;color:#e2e8f0;padding:1px 0 1px 14px;position:relative}
+.md-li::before{content:"•";color:var(--orange);position:absolute;left:4px;font-weight:700}
+.md-ol{font-size:12px;color:#e2e8f0;padding:1px 0 1px 14px}
+.md-p{font-size:12px;color:#e2e8f0;line-height:1.55}
+.md-strong{color:var(--yellow);font-weight:700}
+.md-table{width:100%;border-collapse:collapse;font-size:11px;margin:5px 0}
+.md-table td{padding:4px 8px;border-bottom:1px solid var(--border2);color:#e2e8f0}
+.md-table tr:first-child td{color:#94a3b8;font-size:10px}
+.dots{display:flex;gap:4px;padding:4px 0}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--orange);animation:bl 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes bl{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+.input-bar{padding:10px 12px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;display:flex;gap:7px;align-items:flex-end;padding-bottom:max(10px,env(safe-area-inset-bottom))}
+.input-bar textarea{flex:1;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:11px;padding:9px 11px;color:var(--text);font-size:13px;font-family:inherit;resize:none;outline:none;line-height:1.45;max-height:110px}
+.input-bar textarea:focus{border-color:var(--orange)}
+.send-btn{width:38px;height:38px;border-radius:10px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:linear-gradient(135deg,var(--orange),var(--red));color:#fff}
+.send-btn:disabled{background:var(--surface2);color:var(--dim);cursor:not-allowed}
+.action-btn{border:none;border-radius:9px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.photo-drop{border:2px dashed rgba(249,115,22,0.35);border-radius:14px;padding:44px 20px;text-align:center;cursor:pointer;background:rgba(249,115,22,0.04)}
+.date-chip{flex-shrink:0;padding:5px 13px;border-radius:20px;border:none;cursor:pointer;font-size:11px;font-weight:700;font-family:inherit}
+.progress-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s}
+textarea::placeholder{color:var(--dim)}
+input::placeholder{color:var(--dim)}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+select option{background:#1a1a2e;color:var(--text)}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="key-screen">
+  <div class="key-logo">🍴</div>
+  <div class="key-title">Doudou Meal Agent</div>
+  <div class="key-sub">Entre ta clé API Anthropic pour démarrer. Elle sera sauvegardée sur ton appareil.</div>
+  <input class="key-input" id="api-key-input" type="password" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false"/>
+  <button class="key-btn" onclick="saveKey()">Démarrer →</button>
+  <div class="key-note">Ta clé est uniquement envoyée à api.anthropic.com<br/>Obtiens-en une sur <strong>console.anthropic.com</strong></div>
+</div>
+<div id="main-app" style="display:none;flex-direction:column;height:100%;height:-webkit-fill-available">
+  <div id="topbar">
+    <div class="logo-box">🍴</div>
+    <div style="flex:1"><div class="app-name">Doudou Meal Agent</div><div class="app-sub" id="topbar-sub">Configure ton profil</div></div>
+    <button onclick="clearKey()" style="background:transparent;border:none;cursor:pointer;font-size:18px;color:var(--dim)">🔑</button>
+  </div>
+  <div id="content">
+    <!-- PROFIL -->
+    <div id="tab-profile" class="tab-pane active" style="padding:14px 14px 90px">
+      <div style="margin-bottom:16px"><div class="section-title">Mon profil</div><div class="section-sub">Personnalise tes besoins nutritionnels</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div><label class="field-label">Poids (kg)</label><input class="field-input" id="p-weight" type="number" placeholder="---"/></div>
+        <div><label class="field-label">Taille (cm)</label><input class="field-input" id="p-height" type="number" placeholder="---"/></div>
+        <div><label class="field-label">Âge</label><input class="field-input" id="p-age" type="number" value="30"/></div>
+        <div><label class="field-label">Sexe</label><select class="field-select" id="p-sex"><option value="m">Homme</option><option value="f">Femme</option></select></div>
+      </div>
+      <div style="margin-bottom:10px"><label class="field-label">Objectif</label>
+        <div class="tg" style="gap:4px">
+          <button class="tg-btn on-o" id="goal-prise" onclick="setGoal('prise')">💪 Prise</button>
+          <button class="tg-btn" id="goal-fitness" onclick="setGoal('fitness')">🏃 Fitness</button>
+          <button class="tg-btn" id="goal-seche" onclick="setGoal('seche')">🔥 Sèche</button>
+        </div>
+      </div>
+      <div style="margin-bottom:16px"><label class="field-label">Type de jour par défaut</label>
+        <div class="tg">
+          <button class="tg-btn on-c" id="days-muscu" onclick="setDays('muscu')">💪 Muscu</button>
+          <button class="tg-btn" id="days-repos" onclick="setDays('repos')">🏃 Repos</button>
+        </div>
+      </div>
+      <button onclick="saveProfile()" class="action-btn" style="width:100%;background:linear-gradient(135deg,var(--orange),var(--red));color:#fff;padding:12px;font-size:13px" id="save-btn">Sauvegarder</button>
+      <div id="needs-section" style="display:none;margin-top:16px"></div>
+    </div>
+    <!-- AGENT -->
+    <div id="tab-agent" class="tab-flex">
+      <div style="background:var(--surface);border-bottom:1px solid var(--border);padding:10px 14px;flex-shrink:0">
+        <div class="fla g6 fw" style="margin-bottom:8px">
+          <select class="field-select" id="agent-meal" onchange="updateAgentMacros()" style="flex:1;width:auto;padding:6px 10px;font-size:11px"></select>
+          <div class="tg" style="flex-shrink:0">
+            <button class="tg-btn on-p" id="mode-create" onclick="setAgentMode('create')">🥘 Créer</button>
+            <button class="tg-btn" id="mode-adapt" onclick="setAgentMode('adapt')">🔄 Adapter</button>
+          </div>
+        </div>
+        <div id="agent-macros" class="fl g6 fw"></div>
+      </div>
+      <div id="chat" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;display:flex;flex-direction:column;gap:10px">
+        <div id="chat-empty" style="text-align:center;padding:30px 16px;color:var(--muted)">
+          <div style="font-size:36px;margin-bottom:8px">🥘</div>
+          <div style="font-size:13px;color:var(--dim);font-weight:600">Décris tes aliments ou colle une recette</div>
+        </div>
+      </div>
+      <div class="input-bar">
+        <textarea id="agent-input" rows="2" placeholder="Tes aliments... ex: poulet, riz, brocoli" onkeydown="agentKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="agent-send" onclick="agentSend()">↑</button>
+      </div>
+    </div>
+    <!-- PHOTO -->
+    <div id="tab-photo" class="tab-pane" style="padding:14px 14px 90px">
+      <div style="margin-bottom:14px"><div class="section-title">Analyse photo</div><div class="section-sub">Prends une photo de ton repas</div></div>
+      <div style="margin-bottom:12px"><label class="field-label">Type de repas</label>
+        <select class="field-select" id="photo-meal">
+          <option>Petit-déjeuner</option><option>Déjeuner</option><option>Collation</option><option>Dîner</option><option>Collation soir</option><option>Post-training</option>
+        </select>
+      </div>
+      <input id="photo-input" type="file" accept="image/*" capture="environment" onchange="onPhoto(event)" style="display:none"/>
+      <div id="photo-drop" class="photo-drop" onclick="document.getElementById('photo-input').click()">
+        <div style="font-size:40px;margin-bottom:8px">📷</div>
+        <div style="font-size:13px;color:var(--orange);font-weight:700">Prendre une photo ou choisir une image</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Appuie pour ouvrir l'appareil photo</div>
+      </div>
+      <div id="photo-preview-zone" style="display:none">
+        <img id="photo-img" src="" alt="" style="width:100%;border-radius:12px;margin-bottom:10px;max-height:260px;object-fit:cover"/>
+        <div class="fla g8" style="margin-bottom:12px">
+          <button class="action-btn" onclick="document.getElementById('photo-input').click()" style="flex:1;background:rgba(255,255,255,0.07);color:#94a3b8">Changer</button>
+          <button class="action-btn" id="analyze-btn" onclick="analyzePhoto()" style="flex:2;background:linear-gradient(135deg,var(--orange),var(--red));color:#fff">Analyser</button>
+        </div>
+      </div>
+      <div id="photo-loading" style="display:none;text-align:center;padding:20px">
+        <div class="dots" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      </div>
+      <div id="photo-result" style="display:none" class="card"></div>
+    </div>
+    <!-- JOURNAL -->
+    <div id="tab-journal" class="tab-pane" style="padding:14px 14px 90px">
+      <div style="margin-bottom:14px"><div class="section-title">Journal</div><div class="section-sub">Historique de tes repas</div></div>
+      <div id="journal-content"></div>
+    </div>
+  </div>
+  <div id="bottom-nav">
+    <button class="nav-btn active" id="nav-profile" onclick="switchTab('profile')"><span class="nav-icon">👤</span><span class="nav-label">Profil</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" id="nav-agent" onclick="switchTab('agent')"><span class="nav-icon">🥘</span><span class="nav-label">Recettes</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" id="nav-photo" onclick="switchTab('photo')"><span class="nav-icon">📷</span><span class="nav-label">Photo</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" id="nav-journal" onclick="switchTab('journal')"><span class="nav-icon">📓</span><span class="nav-label">Journal</span><div class="nav-dot"></div></button>
+  </div>
+</div>
+</div>
+<script>
+var API_KEY="",profile={weight:"",height:"",age:30,sex:"m",goal:"fitness",days:"muscu"},journal=[],agentMsgs=[],agentLoading=false,agentMode="create",photoB64=null,photoPreview=null,selDate=null;
+function lsGet(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch{return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+function saveKey(){var k=document.getElementById("api-key-input").value.trim();if(!k.startsWith("sk-")){alert("Clé invalide. Elle doit commencer par sk-ant-...");return;}API_KEY=k;lsSet("dma_key",k);document.getElementById("key-screen").style.display="none";document.getElementById("main-app").style.display="flex";initApp();}
+function clearKey(){if(!confirm("Changer de clé API ?"))return;lsSet("dma_key",null);API_KEY="";document.getElementById("main-app").style.display="none";document.getElementById("key-screen").style.display="flex";document.getElementById("api-key-input").value="";}
+function checkSavedKey(){var k=lsGet("dma_key");if(k&&typeof k==="string"&&k.startsWith("sk-")){API_KEY=k;document.getElementById("key-screen").style.display="none";document.getElementById("main-app").style.display="flex";initApp();}}
+var PLANS={muscu:{total:{kcal:3100,prot:200,gluc:340,lip:84},repas:{"Petit-déjeuner":{kcal:750,prot:50,gluc:80,lip:18},"Déjeuner":{kcal:800,prot:55,gluc:80,lip:25},"Collation pré-training":{kcal:400,prot:25,gluc:60,lip:7},"Post-training":{kcal:300,prot:30,gluc:40,lip:3},"Dîner":{kcal:700,prot:35,gluc:70,lip:25},"Collation soir":{kcal:150,prot:10,gluc:10,lip:6}}},repos:{total:{kcal:2900,prot:165,gluc:260,lip:80},repas:{"Petit-déjeuner":{kcal:700,prot:45,gluc:75,lip:17},"Déjeuner":{kcal:750,prot:50,gluc:70,lip:25},"Collation":{kcal:350,prot:25,gluc:45,lip:8},"Dîner":{kcal:650,prot:35,gluc:60,lip:25},"Collation soir":{kcal:150,prot:10,gluc:10,lip:5}}}};
+function calcNeeds(p){return PLANS[p.days||"muscu"];}
+function initApp(){var p=lsGet("dma_profile");if(p)profile=p;var j=lsGet("dma_journal");if(j)journal=j;loadProfileForm();updateTopbar();updateNeeds();initAgentMeals();renderJournal();}
+function today(){return new Date().toISOString().slice(0,10);}
+function switchTab(id){document.querySelectorAll(".tab-pane,.tab-flex").forEach(function(p){p.classList.remove("active");});document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.remove("active");});document.getElementById("tab-"+id).classList.add("active");document.getElementById("nav-"+id).classList.add("active");if(id==="journal")renderJournal();}
+function loadProfileForm(){document.getElementById("p-weight").value=profile.weight||"";document.getElementById("p-height").value=profile.height||"";document.getElementById("p-age").value=profile.age||30;document.getElementById("p-sex").value=profile.sex||"m";setGoal(profile.goal||"fitness",true);setDays(profile.days||"muscu",true);}
+function setGoal(g,silent){["prise","fitness","seche"].forEach(function(v){document.getElementById("goal-"+v).className="tg-btn"+(v===g?" on-o":"");});if(!silent)profile.goal=g;}
+function setDays(d,silent){["muscu","repos"].forEach(function(v){document.getElementById("days-"+v).className="tg-btn"+(v===d?" on-c":"");});if(!silent)profile.days=d;}
+function saveProfile(){profile.weight=document.getElementById("p-weight").value;profile.height=document.getElementById("p-height").value;profile.age=document.getElementById("p-age").value;profile.sex=document.getElementById("p-sex").value;var gEl=document.querySelector("[id^='goal-'].on-o");profile.goal=gEl?gEl.id.replace("goal-",""):"fitness";var dEl=document.querySelector("[id^='days-'].on-c");profile.days=dEl?dEl.id.replace("days-",""):"muscu";lsSet("dma_profile",profile);updateTopbar();updateNeeds();initAgentMeals();var btn=document.getElementById("save-btn");btn.textContent="Sauvegarde !";setTimeout(function(){btn.textContent="Sauvegarder";},1500);}
+function updateTopbar(){var needs=calcNeeds(profile);var d=profile.days==="muscu"?"💪 Muscu":"🏃 Repos";document.getElementById("topbar-sub").textContent=d+" — "+needs.total.kcal+"kcal/j";}
+function updateNeeds(){var needs=calcNeeds(profile);var sec=document.getElementById("needs-section");if(!needs){sec.style.display="none";return;}sec.style.display="block";var mc=[["Calories",needs.total.kcal+"kcal","#facc15"],["Protéines",needs.total.prot+"g","#4ade80"],["Glucides",needs.total.gluc+"g","#fb923c"],["Lipides",needs.total.lip+"g","#a78bfa"]];var html='<div class="card"><div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Tes besoins calculés</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">';mc.forEach(function(m){html+='<div class="pill" style="background:'+m[2]+'12;border:1px solid '+m[2]+'25"><span class="pl">'+m[0]+'</span><span class="pv" style="color:'+m[2]+'">'+m[1]+'</span></div>';});html+='</div><div style="font-size:10px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;font-weight:700">Répartition par repas</div>';Object.entries(needs.repas).forEach(function(e){html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border2)"><span style="font-size:11px;color:#cbd5e1">'+e[0]+'</span><div style="display:flex;gap:8px;font-size:10px"><span style="color:#facc15">'+e[1].kcal+'kcal</span><span style="color:#4ade80">P'+e[1].prot+'</span><span style="color:#fb923c">G'+e[1].gluc+'</span><span style="color:#a78bfa">L'+e[1].lip+'</span></div></div>';});html+='</div>';sec.innerHTML=html;}
+function initAgentMeals(){var needs=calcNeeds(profile);var meals=needs?Object.keys(needs.repas):["Dejeuner","Diner","Petit-dejeuner","Collation","Post-training"];var sel=document.getElementById("agent-meal");var cur=sel.value;sel.innerHTML=meals.map(function(m){return'<option value="'+m+'">'+m+'</option>';}).join("");if(meals.includes(cur))sel.value=cur;updateAgentMacros();}
+function getAgentTarget(){var needs=calcNeeds(profile);var meal=document.getElementById("agent-meal").value;if(needs&&needs.repas[meal])return needs.repas[meal];return{kcal:700,prot:50,gluc:70,lip:25};}
+function updateAgentMacros(){var t=getAgentTarget();var items=[["Cible",t.kcal+"kcal","#facc15"],["P",t.prot+"g","#4ade80"],["G",t.gluc+"g","#fb923c"],["L",t.lip+"g","#a78bfa"]];document.getElementById("agent-macros").innerHTML=items.map(function(m){return'<div class="pill" style="background:'+m[2]+'12;border:1px solid '+m[2]+'25"><span class="pl">'+m[0]+'</span><span class="pv" style="color:'+m[2]+'">'+m[1]+'</span></div>';}).join("");}
+function setAgentMode(m){agentMode=m;document.getElementById("mode-create").className="tg-btn"+(m==="create"?" on-p":"");document.getElementById("mode-adapt").className="tg-btn"+(m==="adapt"?" on-p":"");document.getElementById("agent-input").placeholder=m==="create"?"Tes aliments... ex: poulet, riz, brocoli":"Colle ta recette ici...";}
+function agentKey(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();agentSend();}}
+function autoResize(el){el.style.height="auto";el.style.height=Math.min(el.scrollHeight,110)+"px";}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function inlineMd(t){return t.replace(/\*\*([^*]+)\*\*/g,'<span class="md-strong">$1</span>');}
+function renderMarkdown(text){if(!text)return"";var lines=text.split("\n"),html="",trows=[];function flushT(){if(!trows.length)return;html+='<div style="overflow-x:auto"><table class="md-table"><tbody>';trows.forEach(function(row){html+="<tr>"+row.map(function(c){return"<td>"+c+"</td>";}).join("")+"</tr>";});html+="</tbody></table></div>";trows=[];}lines.forEach(function(line){if(line.startsWith("|")){var cells=line.split("|").map(function(c){return c.trim();}).filter(Boolean);if(!cells.every(function(c){return/^-+$/.test(c);}))trows.push(cells);return;}flushT();if(line.startsWith("## "))html+='<div class="md-h2">'+line.slice(3)+"</div>";else if(line.startsWith("### "))html+='<div class="md-h3">'+line.slice(4)+"</div>";else if(/^\d+\. /.test(line)){var n=line.match(/^\d+/)[0];html+='<div class="md-ol"><span style="color:var(--orange);font-weight:800">'+n+'.</span> '+inlineMd(line.replace(/^\d+\. /,""))+"</div>";}else if(line.startsWith("- "))html+='<div class="md-li">'+inlineMd(line.slice(2))+"</div>";else if(line.trim()==="")html+='<div style="height:4px"></div>';else html+='<div class="md-p">'+inlineMd(line)+"</div>";});flushT();return html;}
+function addChatMsg(role,content,meta){var chat=document.getElementById("chat");var ce=document.getElementById("chat-empty");if(ce)ce.remove();var row=document.createElement("div");row.className="msg-row"+(role==="user"?" user":"");var avBg=role==="user"?"linear-gradient(135deg,#f97316,#dc2626)":"linear-gradient(135deg,#8b5cf6,#5b21b6)";var avTxt=role==="user"?"U":"AI";row.innerHTML='<div class="avatar" style="background:'+avBg+'">'+avTxt+"</div>";var bubble=document.createElement("div");bubble.className="bubble "+(role==="user"?"user":"bot");if(role==="user")bubble.textContent=(meta&&meta.display)||content;else bubble.innerHTML=content?renderMarkdown(content):'<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';row.appendChild(bubble);chat.appendChild(row);chat.scrollTop=chat.scrollHeight;return bubble;}
+async function agentSend(){var txt=document.getElementById("agent-input");var input=txt.value.trim();if(!input||agentLoading)return;var meal=document.getElementById("agent-meal").value;var t=getAgentTarget();var needs=calcNeeds(profile);var action=agentMode==="create"?"Cree une recette avec ces aliments":"Adapte cette recette aux macros";var sys="Tu es un expert en nutrition sportive et cuisine. Reponds en francais. Sois precis et concis.\nRepas cible: "+meal+" — "+t.kcal+"kcal P"+t.prot+"g G"+t.gluc+"g L"+t.lip+"g\n"+(needs?"Profil: "+needs.total.kcal+"kcal/j, objectif "+profile.goal+"\n":"")+action+". Donne: nb portions, poids/portion, tableau calcule vs cible (OK si +-10%, ATTENTION sinon), dessert si calories insuffisantes.";agentMsgs.push({role:"user",content:input});addChatMsg("user",input,{display:input});txt.value="";txt.style.height="auto";agentLoading=true;document.getElementById("agent-send").disabled=true;var botBubble=addChatMsg("assistant","");var full="";try{var res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-version":"2023-06-01","x-api-key":API_KEY},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1000,stream:true,system:sys,messages:agentMsgs.map(function(m){return{role:m.role,content:m.content};}),})});if(!res.ok){var e=await res.json();throw new Error(e.error&&e.error.message?e.error.message:"Erreur API "+res.status);}var reader=res.body.getReader();var dec=new TextDecoder();while(true){var rd=await reader.read();if(rd.done)break;dec.decode(rd.value).split("\n").filter(function(l){return l.startsWith("data: ");}).forEach(function(line){try{var j=JSON.parse(line.slice(6));if(j.type==="content_block_delta"&&j.delta&&j.delta.text){full+=j.delta.text;botBubble.innerHTML=renderMarkdown(full);document.getElementById("chat").scrollTop=99999;}}catch(ex){}});} var addBtn=document.createElement("button");addBtn.className="action-btn";addBtn.style.cssText="margin-top:8px;background:linear-gradient(135deg,#22d3ee,#0ea5e9);color:#000;width:100%;padding:7px";addBtn.textContent="+ Ajouter au journal";var fc=full,fm=meal;addBtn.onclick=function(){addToJournal({type:fm,content:fc,date:today()});};botBubble.appendChild(addBtn);agentMsgs.push({role:"assistant",content:full});}catch(err){botBubble.innerHTML='<span style="color:#f87171">Erreur: '+esc(err.message)+"</span>";}agentLoading=false;document.getElementById("agent-send").disabled=false;}
+function onPhoto(e){var file=e.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(ev){photoPreview=ev.target.result;photoB64=ev.target.result.split(",")[1];document.getElementById("photo-drop").style.display="none";document.getElementById("photo-preview-zone").style.display="block";document.getElementById("photo-img").src=photoPreview;document.getElementById("photo-result").style.display="none";};reader.readAsDataURL(file);}
+async function analyzePhoto(){var btn=document.getElementById("analyze-btn");if(!photoB64||btn.disabled)return;btn.disabled=true;btn.textContent="Analyse...";document.getElementById("photo-loading").style.display="block";document.getElementById("photo-result").style.display="none";try{var res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-version":"2023-06-01","x-api-key":API_KEY},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:600,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:photoB64}},{type:"text",text:"Analyse ce repas. Estime: nom du plat, calories totales, proteines, glucides, lipides. Tableau simple avec valeurs. Reponds en francais."}]}]})});var data=await res.json();if(data.error)throw new Error(data.error.message);var text=(data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("")||"Pas de réponse.";var mealType=document.getElementById("photo-meal").value;var resultEl=document.getElementById("photo-result");resultEl.style.display="block";var fc=text,fm=mealType,fp=photoPreview;resultEl.innerHTML=renderMarkdown(text);var addBtn=document.createElement("button");addBtn.className="action-btn";addBtn.style.cssText="margin-top:10px;width:100%;background:linear-gradient(135deg,#22d3ee,#0ea5e9);color:#000;padding:9px";addBtn.textContent="+ Ajouter au journal du jour";addBtn.onclick=function(){addToJournal({type:fm,content:fc,photo:fp,date:today()});};resultEl.appendChild(addBtn);}catch(err){var el=document.getElementById("photo-result");el.style.display="block";el.innerHTML='<span style="color:#f87171">Erreur: '+esc(err.message)+"</span>";}document.getElementById("photo-loading").style.display="none";btn.disabled=false;btn.textContent="Analyser";}
+function addToJournal(entry){journal.unshift(entry);lsSet("dma_journal",journal);renderJournal();switchTab("journal");}
+function selectDate(d){selDate=d;renderJournal();}
+function renderJournal(){var el=document.getElementById("journal-content");if(!journal.length){el.innerHTML='<div style="text-align:center;padding:40px 16px;color:var(--muted)"><div style="font-size:36px;margin-bottom:8px">📓</div><div style="font-size:13px;color:var(--dim)">Aucune entrée. Ajoute des repas depuis l\'agent ou l\'analyse photo.</div></div>';return;}var dates=[...new Set(journal.map(function(e){return e.date;}))].sort().reverse();if(!selDate||!dates.includes(selDate))selDate=dates[0];var needs=calcNeeds(profile);var html='<div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px">';dates.forEach(function(d){html+='<button class="date-chip" onclick="selectDate(\''+d+'\')" style="background:'+(d===selDate?"var(--orange)":"rgba(255,255,255,0.07)")+';color:'+(d===selDate?"#000":"#94a3b8")+'">'+(d===today()?"Aujourd'hui":d)+"</button>";});html+="</div>";var entries=journal.filter(function(e){return e.date===selDate;});if(needs&&entries.length){var totalKcal=entries.reduce(function(s,e){var m=e.content.match(/(\d+)\s*kcal/i);return s+(m?parseInt(m[1]):0);},0);var pct=Math.min(100,Math.round(totalKcal/needs.total.kcal*100));html+='<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:12px;color:#94a3b8">Calories du jour</span><span style="font-size:12px;font-weight:700;color:#facc15">'+totalKcal+" / "+needs.total.kcal+' kcal</span></div><div class="progress-bar"><div class="progress-fill" style="width:'+pct+"%;background:"+(pct>100?"#ef4444":"linear-gradient(90deg,#f97316,#facc15)")+'"></div></div><div style="font-size:10px;color:var(--muted);margin-top:4px">'+pct+"% de l'objectif</div></div>";}if(!entries.length)html+='<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Aucun repas pour cette date.</div>';else entries.forEach(function(e){html+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:var(--orange)">'+esc(e.type)+'</span><span style="font-size:10px;color:var(--muted)">'+e.date+"</span></div>"+(e.photo?'<img src="'+e.photo+'" style="width:100%;border-radius:8px;margin-bottom:8px;max-height:140px;object-fit:cover"/>':"")+"<div>"+renderMarkdown(e.content.slice(0,400)+(e.content.length>400?"...":""))+"</div></div>";});el.innerHTML=html;}
+checkSavedKey();
+</script>
+</body>
+</html>
